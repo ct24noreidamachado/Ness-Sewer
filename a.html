@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ness Sewer</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <style>
+    body {
+      font-family: 'Times New Roman', Times, serif, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+    }
+    header {
+      background-color: #32CD32;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    header img {
+      height: 40px;
+      margin-right: 10px;
+    }
+    header h1 {
+      font-size: 24px;
+      margin: 0;
+    }
+    .screen {
+      display: none;
+      padding: 20px;
+    }
+    .active {
+      display: block;
+    }
+    .menu {
+      display: flex;
+      justify-content: space-around;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: #32CD32;
+      padding: 10px 0;
+    }
+    .menu button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #map {
+      height: 50vh;
+      width: 100%;
+      margin: 20px 0;
+    }
+    .status-buttons button {
+      margin: 5px;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .status-buttons .on {
+      background-color: #32CD32;
+      color: white;
+    }
+    .status-buttons .off {
+      background-color: #FF4D4D;
+      color: white;
+    }
+    .form-input {
+      margin: 10px 0;
+      padding: 10px;
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .form-button {
+      background-color: #32CD32;
+      color: white;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="C:\Users\Nathy Peluso\Downloads\Imagen de WhatsApp 2024-11-19 a las 16.58.28_43bea262.jpg" alt="Ness Sewer Logo">
+    <h1>Ness Sewer</h1>
+  </header>
+
+  <!-- Pantalla de Inicio -->
+  <div id="Inicio" class="screen active">
+    <h2>Bienvenido a Ness Sewer</h2>
+    <p>Tu solución tecnológica para el monitoreo y limpieza de alcantarillas.</p>
+    <p><strong>Conoce más de nosotros:</strong></p>
+    <p>Ness Sewer utiliza tecnología avanzada de mapeo y limpieza automatizada para garantizar el mantenimiento de las alcantarillas, reducir desbordamientos y proteger el medio ambiente.</p>
+    <button onclick="navigateTo('Registro')">Comenzar</button>
+  </div>
+
+  <!-- Pantalla de Registro -->
+  <div id="Registro" class="screen">
+    <h2>Registro</h2>
+    <form id="register-form">
+      <input type="text" id="username" class="form-input" placeholder="Nombre de Usuario" required /><br>
+      <input type="email" id="email" class="form-input" placeholder="Correo Electrónico" required /><br>
+      <input type="password" id="password" class="form-input" placeholder="Contraseña" required /><br>
+      <button type="submit" class="form-button">Registrarse</button>
+      <p>
+        <a href="#">¿Olvidaste tu contraseña?</a><br>
+        <a href="#" onclick="navigateTo('Login')">Ya tienes una cuenta? Iniciar sesión</a>
+      </p>
+    </form>
+  </div>
+
+  <!-- Pantalla de Login -->
+  <div id="Login" class="screen">
+    <h2>Iniciar Sesión</h2>
+    <form id="login-form">
+      <input type="email" id="email-login" class="form-input" placeholder="Correo Electrónico" required /><br>
+      <input type="password" id="password-login" class="form-input" placeholder="Contraseña" required /><br>
+      <button type="submit" class="form-button">Iniciar Sesión</button>
+      <p>
+        <a href="#">¿Olvidaste tu contraseña?</a><br>
+        <a href="#" onclick="navigateTo('Registro')">Crear una cuenta</a>
+      </p>
+    </form>
+  </div>
+
+  <!-- Pantalla Principal -->
+  <div id="Principal" class="screen">
+    <h2>Mapa de Alcantarillas</h2>
+    <div id="map"></div>
+  </div>
+
+  <!-- Pantalla de Monitoreo -->
+  <div id="Monitoreo" class="screen">
+    <h2>Monitoreo</h2>
+    <div>
+      <h3>Almacenamiento</h3>
+      <p>0% lleno</p>
+    </div>
+    <div>
+      <h3>Autolavado</h3>
+      <div class="status-buttons">
+        <button class="on" onclick="toggleAutolavado('on')">Encendido</button>
+        <button class="off" onclick="toggleAutolavado('off')">Apagado</button>
+      </div>
+    </div>
+    <div>
+      <h3>Ruta</h3>
+      <button onclick="alert('Seguir ruta...')">Seguir Ruta</button>
+    </div>
+  </div>
+
+  <!-- Navegación -->
+  <div class="menu">
+    <button onclick="navigateTo('Inicio')">Inicio</button>
+    <button onclick="navigateTo('Registro')">Registro</button>
+    <button onclick="navigateTo('Principal')">Mapa</button>
+    <button onclick="navigateTo('Monitoreo')">Monitoreo</button>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <script>
+    // Navegación entre pantallas
+    function navigateTo(screenId) {
+      document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    // Registrar usuario (almacenar en LocalStorage)
+    document.getElementById("register-form").addEventListener("submit", function(event) {
+      event.preventDefault();
+      const username = document.getElementById("username").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      localStorage.setItem('user', JSON.stringify({ username, email, password }));
+      alert("Registro exitoso!");
+      navigateTo('Login');
+    });
+
+    // Iniciar sesión (verificar en LocalStorage)
+    document.getElementById("login-form").addEventListener("submit", function(event) {
+      event.preventDefault();
+      const email = document.getElementById("email-login").value;
+      const password = document.getElementById("password-login").value;
+
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user && user.email === email && user.password === password) {
+        alert("Bienvenido, " + user.username + "!");
+        navigateTo('Principal');
+      } else {
+        alert("Correo o contraseña incorrectos");
+      }
+    });
+
+    // Inicializar el mapa
+    const map = L.map('map').setView([8.983333, -79.516667], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+    }).addTo(map);
+
+    // Puntos de alcantarillas (demo)
+    const points = [
+      { coords: [8.983333, -79.516667], status: 'Limpio', color: 'blue' },
+      { coords: [8.973333, -79.526667], status: 'Sucia', color: 'yellow' },
+      { coords: [8.963333, -79.536667], status: 'Dañado', color: 'red' },
+      { coords: [8.953333, -79.546667], status: 'Limpieza', color: 'green' },
+    ];
+
+    points.forEach(point => {
+      L.circle(point.coords, {
+        color: point.color,
+        fillColor: point.color,
+        fillOpacity: 0.5,
+        radius: 100,
+      }).addTo(map).bindPopup(`Estado: ${point.status}`);
+    });
+
+    // Función para activar/desactivar el autolavado
+    function toggleAutolavado(state) {
+      if (state === 'on') {
+        alert('Autolavado activado');
+      } else {
+        alert('Autolavado desactivado');
+      }
+    }
+  </script>
+</body>
+</html>
